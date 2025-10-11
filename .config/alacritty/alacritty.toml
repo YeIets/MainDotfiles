@@ -30,9 +30,6 @@ general.import = [
 
 opacity = 0.9
 
-padding.x = 0
-padding.y = 0
-
 [cursor]
 
 style = {shape = "Beam", blinking = "On"}

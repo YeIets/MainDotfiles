@@ -71,21 +71,48 @@ vim.opt.encoding = "UTF-8"                         -- Set encoding
 vim.opt.guicursor = "n-v-c:block,i:ver30-blinkon250"
 
 -- Force pitch black background for all themes
+-- Force pitch black background + custom diagnostic colors for all themes
 vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()
     local set_hl = vim.api.nvim_set_hl
-    set_hl(0, "Normal",      { bg = "#000000" })
-    set_hl(0, "NormalFloat", { bg = "#000000" })
-    set_hl(0, "SignColumn",  { bg = "#000000" })
-    set_hl(0, "LineNr",      { bg = "#000000" })
-    set_hl(0, "EndOfBuffer",{ bg = "#000000" })
-    set_hl(0, "WinSeparator",{ bg = "#000000" })
-    set_hl(0, "StatusLine",  { bg = "#000000" })
+
+    -- Background overrides
+    set_hl(0, "Normal",       { bg = "#000000" })
+    set_hl(0, "NormalFloat",  { bg = "#000000" })
+    set_hl(0, "SignColumn",   { bg = "#000000" })
+    set_hl(0, "LineNr",       { bg = "#000000" })
+    set_hl(0, "EndOfBuffer",  { bg = "#000000" })
+    set_hl(0, "WinSeparator", { bg = "#000000" })
+    set_hl(0, "StatusLine",   { bg = "#000000" })
+
+    -- Diagnostic colors
+    set_hl(0, "DiagnosticError", { fg = "#ff5555" }) -- red
+    set_hl(0, "DiagnosticWarn",  { fg = "#f1fa8c" }) -- yellow
+    set_hl(0, "DiagnosticInfo",  { fg = "#8be9fd" }) -- cyan
+    set_hl(0, "DiagnosticHint",  { fg = "#50fa7b" }) -- green
+
+    -- Underline styles (optional, uses undercurl with a colored underline)
+    set_hl(0, "DiagnosticUnderlineError", { undercurl = true, sp = "#ff5555" })
+    set_hl(0, "DiagnosticUnderlineWarn",  { undercurl = true, sp = "#f1fa8c" })
+    set_hl(0, "DiagnosticUnderlineInfo",  { undercurl = true, sp = "#8be9fd" })
+    set_hl(0, "DiagnosticUnderlineHint",  { undercurl = true, sp = "#50fa7b" })
+
+    vim.api.nvim_set_hl(0, "DiagnosticVirtualTextWarn",  { fg = "#f1fa8c", bg = "#000000" })
+    vim.api.nvim_set_hl(0, "DiagnosticVirtualTextError", { fg = "#ff5555", bg = "#000000" })
+    vim.api.nvim_set_hl(0, "DiagnosticVirtualTextInfo",  { fg = "#8be9fd", bg = "#000000" })
+    vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint",  { fg = "#50fa7b", bg = "#000000" })
+
   end,
 })
 
 -- Set the theme
 vim.cmd("colorscheme gruvbox-material")
+
+-- Allow diagnostics  
+vim.diagnostic.config({
+    virtual_text = true, -- Enables virtual text
+    -- Other options as needed
+})
 
 ------------------
 -- KEY BINDINGS --
@@ -109,13 +136,35 @@ vim.keymap.set({'n', 'v', 'o'}, "h", "w", { noremap = true })  -- Word motion ma
 vim.keymap.set({'n', 'v', 'o'}, "Ñ", "A", { noremap = true })  -- Append operator mapped to Ñ
 vim.keymap.set({'n', 'v', 'o'}, "ñ", "a", { noremap = true })  -- Append operator mapped to Ñ
 vim.keymap.set({'n', 'v', 'o'}, "l", "e", { noremap = true })  -- e (end of word) motion mapped to l
+
+-- Telescope Key Binds
+local builtin = require('telescope.builtin')
+
+vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
+vim.keymap.set('n', '<C-Tab>', builtin.buffers, { desc = 'Telescope buffers' })
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
+vim.keymap.set('n', '<C-p>', builtin.git_files, { desc = 'Telescope git files'})
 -------------------
 -- MOVEMENT KEYS --
 -------------------
 
 -- Change Ctrl+y to ctrl+a, scrolling up and down
 vim.keymap.set('n', '<C-a>', '<C-y>', { noremap = true })  -- scroll up
-
+vim.keymap.set('n', '<leader><C-a>', '<C-u>', { noremap = true, silent = true})
+vim.keymap.set('n', '<leader><C-e>', '<C-d>', { noremap = true, silent = true})
 -- Change Ctr+u from scroll to redo
 vim.keymap.set('n', '<C-u>',' <C-r>', { noremap = true })  -- Redo
+
+-- Jump to definition
+vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {noremap = true })
+
+-- Jump to declaration
+vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {noremap = true })
+
+-- Open Docs
+vim.keymap.set('n', 'K', vim.lsp.buf.hover, { noremap = true })
+
+-- Open fixes
+vim.keymap.set('n', '<leader>fix', vim.lsp.buf.code_action, { desc = "Code Action" })
 
